@@ -1,0 +1,18 @@
+# Storybook
+.storybook/
+storybook-static/
+**/*.stories.ts
+**/*.stories.tsx
+**/*.stories.mdx
+**/*.mdx
+
+# Tests
+**/*.test.ts
+**/*.test.tsx
+**/__tests__/
+
+# Dev artifacts
+.vscode/
+.idea/
+*.log
+coverage/

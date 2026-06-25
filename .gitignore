@@ -1,0 +1,14 @@
+node_modules/
+dist/
+storybook-static/
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.*
+.turbo/
+.cache/
+coverage/
+*.tsbuildinfo
