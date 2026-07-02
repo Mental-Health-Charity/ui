@@ -2,25 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { XStack, YStack, Text } from 'tamagui'
 import { Button } from './Button'
 
-const VARIANTS = [
-  'primary',
-  'secondary',
-  'outline',
-  'ghost',
-  'softPrimary',
-  'softSecondary',
-  'danger',
-  'softDanger',
-] as const
-
-const SIZES = ['sm', 'md', 'lg'] as const
+const VARIANTS = ['primary', 'secondary', 'danger', 'mutedPrimary'] as const
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
   component: Button,
   argTypes: {
     variant: { control: 'select', options: VARIANTS },
-    size: { control: 'select', options: SIZES },
+    outlined: { control: 'boolean' },
     disabled: { control: 'boolean' },
     fullWidth: { control: 'boolean' },
     onPress: { action: 'pressed' },
@@ -28,7 +17,9 @@ const meta: Meta<typeof Button> = {
   args: {
     children: 'Button',
     variant: 'primary',
-    size: 'md',
+    outlined: false,
+    disabled: false,
+    fullWidth: false,
   },
 }
 
@@ -47,13 +38,15 @@ export const AllVariants: Story = {
             {variant}
           </Text>
           <XStack gap={12} alignItems="center" flexWrap="wrap">
-            {SIZES.map((size) => (
-              <Button key={size} variant={variant} size={size}>
-                {`${variant} / ${size}`}
-              </Button>
-            ))}
+            <Button variant={variant}>Filled</Button>
+            <Button variant={variant} outlined>
+              Outlined
+            </Button>
             <Button variant={variant} disabled>
-              disabled
+              Disabled
+            </Button>
+            <Button variant={variant} outlined disabled>
+              Disabled outlined
             </Button>
           </XStack>
         </YStack>
@@ -74,4 +67,20 @@ export const FullWidth: Story = {
       </YStack>
     ),
   ],
+}
+
+export const IconOnly: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'For icon-only buttons, pass `aria-label` so screen readers announce a meaningful name. Works on both web and React Native (RN 0.71+).',
+      },
+    },
+  },
+  args: {
+    'aria-label': 'Delete item',
+    variant: 'danger',
+    children: '🗑',
+  },
 }

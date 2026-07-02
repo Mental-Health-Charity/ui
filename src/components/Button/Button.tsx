@@ -1,140 +1,79 @@
-import { styled, Stack, Text } from 'tamagui'
+import { forwardRef, type ReactNode } from 'react'
+import type { GetProps } from 'tamagui'
+import {
+  ButtonFrame,
+  ButtonText,
+  resolveButtonAppearance,
+  type ButtonVariant,
+} from './Button.styles'
 
-/**
- * Button — renders a real <button> on web (focusable, keyboard, screen reader)
- * and a Pressable-like Stack on native.
- *
- * Color variants map to semantic tokens from themes.ts.
- */
-const ButtonFrame = styled(Stack, {
-  name: 'Button',
-  tag: 'button',
-  role: 'button',
-  cursor: 'pointer',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexDirection: 'row',
-  gap: 8,
-  borderWidth: 1,
-  borderColor: 'transparent',
-  borderRadius: 8,
-  paddingHorizontal: 16,
-  paddingVertical: 10,
-  userSelect: 'none',
+type FrameProps = GetProps<typeof ButtonFrame>
 
-  pressStyle: { opacity: 0.85 },
-  focusStyle: {
-    outlineStyle: 'solid',
-    outlineWidth: 2,
-    outlineColor: '$borderColorFocus',
-  },
+export interface ButtonProps
+  extends Omit<FrameProps, 'children' | 'disabled' | 'role'> {
+  /** Color scheme. Defaults to `'primary'`. */
+  variant?: ButtonVariant
+  /** Render the outlined variant — transparent bg + colored border. */
+  outlined?: boolean
+  /** Non-interactive state. Sets `aria-disabled`, blocks press, mutes colors. */
+  disabled?: boolean
+  /** Stretch to the parent's cross-axis width. */
+  fullWidth?: boolean
+  /**
+   * Accessible label — announced by screen readers. Required when `children`
+   * is not a plain string (e.g. icon-only buttons). Maps to `aria-label` on
+   * both web and React Native (RN 0.71+).
+   */
+  'aria-label'?: string
+  children?: ReactNode
+}
 
-  variants: {
-    variant: {
-      primary: {
-        backgroundColor: '$primary',
-        hoverStyle: { backgroundColor: '$primaryHover' },
-        pressStyle: { backgroundColor: '$primaryPress' },
-      },
-      secondary: {
-        backgroundColor: '$secondary',
-        hoverStyle: { backgroundColor: '$secondaryHover' },
-        pressStyle: { backgroundColor: '$secondaryPress' },
-      },
-      outline: {
-        backgroundColor: 'transparent',
-        borderColor: '$borderColor',
-        hoverStyle: { backgroundColor: '$backgroundHover', borderColor: '$borderColorHover' },
-      },
-      ghost: {
-        backgroundColor: 'transparent',
-        hoverStyle: { backgroundColor: '$backgroundHover' },
-      },
-      softPrimary: {
-        backgroundColor: '$primarySoft',
-        hoverStyle: { backgroundColor: '$primaryLightest' },
-      },
-      softSecondary: {
-        backgroundColor: '$secondarySoft',
-        hoverStyle: { backgroundColor: '$secondaryLightest' },
-      },
-      danger: {
-        backgroundColor: '$danger',
-        hoverStyle: { backgroundColor: '$dangerHover' },
-        pressStyle: { backgroundColor: '$dangerPress' },
-      },
-      softDanger: {
-        backgroundColor: '$dangerSoft',
-        hoverStyle: { backgroundColor: '$redLightest' },
-      },
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button(
+    {
+      variant = 'primary',
+      outlined = false,
+      disabled = false,
+      fullWidth = false,
+      children,
+      onPress,
+      ...rest
     },
+    ref
+  ) {
+    const appearance = resolveButtonAppearance({ variant, outlined, disabled })
 
-    size: {
-      sm: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
-      md: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
-      lg: { paddingHorizontal: 20, paddingVertical: 14, borderRadius: 10 },
-    },
-
-    disabled: {
-      true: {
-        opacity: 0.5,
-        pointerEvents: 'none',
-        cursor: 'not-allowed',
-      },
-    },
-
-    fullWidth: {
-      true: { alignSelf: 'stretch' },
-    },
-  } as const,
-
-  defaultVariants: {
-    variant: 'primary',
-    size: 'md',
-  },
-})
-
-const ButtonText = styled(Text, {
-  name: 'ButtonText',
-  fontFamily: '$body',
-  fontWeight: '500', // Sarabun Medium ("semibold" per Figma convention)
-
-  variants: {
-    variant: {
-      primary: { color: '$primaryText' },
-      secondary: { color: '$secondaryText' },
-      outline: { color: '$color' },
-      ghost: { color: '$color' },
-      softPrimary: { color: '$primaryTextSoft' },
-      softSecondary: { color: '$secondaryTextSoft' },
-      danger: { color: '$dangerText' },
-      softDanger: { color: '$dangerTextSoft' },
-    },
-    size: {
-      // Map to Figma scales: sm→small (14/20), md→regular (16/21), lg→large (18/23)
-      sm: { fontSize: 14, lineHeight: 20 },
-      md: { fontSize: 16, lineHeight: 21 },
-      lg: { fontSize: 18, lineHeight: 23 },
-    },
-  } as const,
-})
-
-export const Button = ButtonFrame.styleable<{
-  children?: React.ReactNode
-}>(({ children, ...props }, ref) => {
-  // Wrap raw string children in ButtonText so typography and color match the variant.
-  return (
-    <ButtonFrame ref={ref} {...props}>
-      {typeof children === 'string' ? (
-        <ButtonText variant={props.variant} size={props.size}>
-          {children}
-        </ButtonText>
-      ) : (
-        children
-      )}
-    </ButtonFrame>
-  )
-})
-
-export { ButtonText }
-export type ButtonProps = React.ComponentProps<typeof Button>
+    return (
+      <ButtonFrame
+        ref={ref as never}
+        {...appearance}
+        hoverStyle={{ backgroundColor: appearance.hoverBackgroundColor }}
+        pressStyle={{
+          backgroundColor: appearance.pressBackgroundColor,
+          // Tactile "press down" — translateY, so the hitbox stays put.
+          // Skipped when disabled (no interaction affordance).
+          y: disabled ? 0 : 1,
+        }}
+        cursor={disabled ? 'not-allowed' : 'pointer'}
+        alignSelf={fullWidth ? 'stretch' : 'auto'}
+        // --- a11y ---
+        // Modern ARIA props — supported on web and RN 0.71+. The deprecated
+        // `accessibilityRole` / `accessibilityLabel` / `accessibilityState`
+        // props are intentionally omitted (see RN a11y docs).
+        // `role="button"` is already set on the ButtonFrame styled base.
+        disabled={disabled}
+        aria-disabled={disabled || undefined}
+        // Swallow presses when disabled — defense in depth (HTML <button disabled>
+        // already does this on web, but native needs it too).
+        onPress={disabled ? undefined : onPress}
+        {...rest}
+      >
+        {typeof children === 'string' ? (
+          <ButtonText color={appearance.color}>{children}</ButtonText>
+        ) : (
+          children
+        )}
+      </ButtonFrame>
+    )
+  }
+)
