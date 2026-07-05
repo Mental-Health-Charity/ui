@@ -1,0 +1,15 @@
+# Build output
+dist/
+storybook-static/
+
+# Dependencies
+node_modules/
+
+# Lockfiles (managed by npm)
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Generated
+*.tsbuildinfo
+coverage/
