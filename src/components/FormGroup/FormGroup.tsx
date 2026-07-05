@@ -22,7 +22,7 @@ export interface FormGroupProps extends Omit<YStackProps, 'children'> {
  */
 export const FormGroup = forwardRef<never, FormGroupProps>(function FormGroup(
   { gap = '$lg', children, ...rest },
-  ref
+  ref,
 ) {
   return (
     <YStack ref={ref as never} gap={gap} role="group" {...rest}>

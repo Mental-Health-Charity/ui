@@ -5,8 +5,7 @@ import { palette } from '../src/tokens/palette'
 import './preview.css'
 
 const themeDecorator: Decorator = (Story, context) => {
-  const theme: 'light' | 'dark' =
-    context.globals.theme === 'dark' ? 'dark' : 'light'
+  const theme: 'light' | 'dark' = context.globals.theme === 'dark' ? 'dark' : 'light'
 
   return (
     <PeryskopProvider defaultTheme={theme}>
@@ -15,10 +14,8 @@ const themeDecorator: Decorator = (Story, context) => {
         style={{
           minHeight: '100vh',
           padding: 24,
-          background:
-            theme === 'dark' ? palette.ink.darkest : palette.common.white,
-          color:
-            theme === 'dark' ? palette.sky.lightest : palette.ink.darkest,
+          background: theme === 'dark' ? palette.ink.darkest : palette.common.white,
+          color: theme === 'dark' ? palette.sky.lightest : palette.ink.darkest,
         }}
       >
         <Story />

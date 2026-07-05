@@ -55,9 +55,7 @@ export const AllVariants: Story = {
           <Typography variant="tinyRegular" muted>
             {variant}
           </Typography>
-          <Typography variant={variant}>
-            The quick brown fox jumps over the lazy dog
-          </Typography>
+          <Typography variant={variant}>The quick brown fox jumps over the lazy dog</Typography>
         </YStack>
       ))}
     </YStack>

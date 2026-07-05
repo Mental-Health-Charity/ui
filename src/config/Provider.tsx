@@ -5,11 +5,7 @@ type PeryskopProviderProps = Omit<TamaguiProviderProps, 'config'> & {
   config?: TamaguiProviderProps['config']
 }
 
-export function PeryskopProvider({
-  children,
-  config,
-  ...props
-}: PeryskopProviderProps) {
+export function PeryskopProvider({ children, config, ...props }: PeryskopProviderProps) {
   return (
     <TamaguiProvider config={config ?? tamaguiConfig} {...props}>
       {children}

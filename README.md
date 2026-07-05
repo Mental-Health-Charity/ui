@@ -142,6 +142,7 @@ Web: variant dobiera semantyczny tag (`title1` → `<h1>`, `regularRegular` → 
 ```
 
 Dostępne warianty (Sarabun, weight: Regular=400 / Medium=500 / Bold=700):
+
 - `title1` 48/56, `title2` 32/36, `title3` 24/32 (always bold)
 - `largeBold`, `largeSemibold`, `largeRegular` (18/23)
 - `regularBold`, `regularSemibold`, `regularRegular` (16/21) — default
@@ -153,18 +154,23 @@ Dostępne warianty (Sarabun, weight: Regular=400 / Medium=500 / Bold=700):
 #### Loading Sarabun
 
 **Web** (np. w `index.html`):
+
 ```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
 ```
 
 **Native (Expo)**:
+
 ```tsx
 import { useFonts } from 'expo-font'
 
 const [loaded] = useFonts({
-  'Sarabun': require('./assets/fonts/Sarabun-Regular.ttf'),
+  Sarabun: require('./assets/fonts/Sarabun-Regular.ttf'),
   'Sarabun-Medium': require('./assets/fonts/Sarabun-Medium.ttf'),
   'Sarabun-Bold': require('./assets/fonts/Sarabun-Bold.ttf'),
 })
@@ -198,11 +204,12 @@ Semantic HTML5 landmarks on web; plain Views on native.
 
 ```tsx
 <Main>
-  <Header><Nav>…</Nav></Header>
+  <Header>
+    <Nav>…</Nav>
+  </Header>
   <Section>
     <Article>
-      <Typography variant="h1">Tytuł artykułu</Typography>
-      …
+      <Typography variant="h1">Tytuł artykułu</Typography>…
     </Article>
   </Section>
   <Footer>…</Footer>
@@ -219,8 +226,8 @@ Referuj przez `$` notację — Tamagui sam wybiera właściwą tabelę z konteks
 
 ```tsx
 <YStack
-  padding="$lg"      // 16px
-  gap="$sm"          // 8px
+  padding="$lg" // 16px
+  gap="$sm" // 8px
   borderRadius="$md" // 12px
 />
 ```
@@ -270,6 +277,7 @@ pnpm build-storybook   # statyczny build do storybook-static/
 ```
 
 Stack: **Storybook 9** + **Vite builder** + `@tamagui/vite-plugin`. Addony:
+
 - `addon-a11y` — axe-core audit każdego story (panel "Accessibility")
 - `addon-themes` — przełącznik light/dark w toolbarze (mapuje na `PeryskopProvider defaultTheme`)
 - `addon-docs` — auto-generowane MDX z propsami komponentów

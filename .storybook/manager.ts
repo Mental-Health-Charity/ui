@@ -8,8 +8,7 @@ const peryskopTheme = create({
   colorPrimary: '#06b7a7',
   colorSecondary: '#06b7a7',
   fontBase: '"Sarabun", system-ui, -apple-system, sans-serif',
-  fontCode:
-    '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+  fontCode: '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
 })
 
 addons.setConfig({

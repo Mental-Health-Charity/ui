@@ -23,12 +23,7 @@ export const Scale: Story = {
     <XStack gap={24} padding={24} flexWrap="wrap" alignItems="flex-end">
       {Object.entries(radius).map(([name, value]) => (
         <YStack key={name} gap={8} alignItems="center">
-          <YStack
-            width={96}
-            height={96}
-            backgroundColor="$primary"
-            borderRadius={value}
-          />
+          <YStack width={96} height={96} backgroundColor="$primary" borderRadius={value} />
           <Text fontSize={13} fontWeight="600" color="$color">
             ${name}
           </Text>
