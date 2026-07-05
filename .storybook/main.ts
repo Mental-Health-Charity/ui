@@ -1,18 +1,9 @@
 import type { StorybookConfig } from '@storybook/react-vite'
 import { mergeConfig } from 'vite'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const dirname = path.dirname(fileURLToPath(import.meta.url))
-const projectRoot = path.resolve(dirname, '..')
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
-  addons: [
-    '@storybook/addon-a11y',
-    '@storybook/addon-themes',
-    '@storybook/addon-docs',
-  ],
+  addons: ['@storybook/addon-a11y', '@storybook/addon-themes', '@storybook/addon-docs'],
   framework: {
     name: '@storybook/react-vite',
     options: {},
@@ -22,8 +13,7 @@ const config: StorybookConfig = {
     reactDocgenTypescriptOptions: {
       shouldExtractLiteralValuesFromEnum: true,
       shouldExtractValuesFromUnion: true,
-      propFilter: (prop) =>
-        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
+      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
     },
   },
   core: {
@@ -63,9 +53,7 @@ const config: StorybookConfig = {
       define: {
         // react-native-web reads this at runtime.
         __DEV__: JSON.stringify(true),
-        'process.env.NODE_ENV': JSON.stringify(
-          process.env.NODE_ENV ?? 'development'
-        ),
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV ?? 'development'),
       },
       optimizeDeps: {
         // Pre-bundle Tamagui to keep dev start fast.
