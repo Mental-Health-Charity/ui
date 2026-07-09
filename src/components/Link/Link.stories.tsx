@@ -27,8 +27,7 @@ export const InlineWithinParagraph: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Use `variant="inline"` to keep the underline visible while embedded in body text.',
+        story: 'Use `variant="inline"` to keep the underline visible while embedded in body text.',
       },
     },
   },

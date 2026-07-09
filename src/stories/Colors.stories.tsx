@@ -41,13 +41,7 @@ function Swatch({ name, value }: { name: string; value: string }) {
   )
 }
 
-function PaletteGroup({
-  title,
-  shades,
-}: {
-  title: string
-  shades: Record<string, string>
-}) {
+function PaletteGroup({ title, shades }: { title: string; shades: Record<string, string> }) {
   return (
     <YStack gap={12}>
       <Text fontSize={18} fontWeight="700" color="$color">

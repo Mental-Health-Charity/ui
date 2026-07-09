@@ -44,7 +44,7 @@ export type LinkProps = StyledLinkProps & {
 
 export const Link = forwardRef<unknown, LinkProps>(function Link(
   { href, external, ...props },
-  ref
+  ref,
 ) {
   return (
     <StyledLink

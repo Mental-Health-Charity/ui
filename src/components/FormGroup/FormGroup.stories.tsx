@@ -25,11 +25,7 @@ export const SignInForm: Story = {
     <FormGroup>
       <Typography variant="title3">Sign in</Typography>
       <Input label="Email" placeholder="you@example.com" />
-      <Input
-        label="Password"
-        placeholder="••••••••"
-        caption="At least 8 characters."
-      />
+      <Input label="Password" placeholder="••••••••" caption="At least 8 characters." />
       <Button variant="primary" fullWidth>
         Sign in
       </Button>
@@ -41,16 +37,8 @@ export const WithValidationErrors: Story = {
   render: () => (
     <FormGroup>
       <Typography variant="title3">Create account</Typography>
-      <Input
-        label="Email"
-        defaultValue="not-an-email"
-        error="Enter a valid email address."
-      />
-      <Input
-        label="Password"
-        placeholder="••••••••"
-        error="Too short — minimum 8 characters."
-      />
+      <Input label="Email" defaultValue="not-an-email" error="Enter a valid email address." />
+      <Input label="Password" placeholder="••••••••" error="Too short — minimum 8 characters." />
       <Input
         label="Full name"
         placeholder="Jane Doe"

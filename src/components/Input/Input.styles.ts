@@ -1,83 +1,147 @@
 import { TextInput } from 'react-native'
-import { styled, Text } from 'tamagui'
+import { styled, Stack, Text } from 'tamagui'
 
 /**
- * Input styles — geometry, typography, per-state color tables.
+ * Input styles — split into three collaborating frames:
  *
- * Kept separate from Input.tsx so the component file stays focused on
- * composition and a11y wiring.
+ *   InputContainer   ← wraps prefix + field + suffix; owns bg / border /
+ *                      focus outline / height. This is the surface the user
+ *                      *sees* as "the input".
+ *   InputField       ← the real <input> DOM element. Transparent, borderless,
+ *                      100% of parent height, flex-1. Focus lives here.
+ *   InputSlot        ← wrapper around the prefix or suffix content — handles
+ *                      spacing and interactive affordances (`pointer-events`
+ *                      on inert slots, cursor on interactive ones).
  *
- * IMPORTANT — why we `styled(TextInput)` from react-native (not `styled(Input)`
- * from tamagui):
+ * Why the split: prefix/suffix (icons, buttons, dropdowns) must sit *inside*
+ * the visual border/background — so the border can't live on the input.
+ * See MUI's `InputBase` + `InputAdornment`, Chakra's `InputGroup` / `Element`,
+ * Ant's `Input` with `prefix` / `suffix` slots — same pattern.
  *
- * Tamagui's `Input` component is defined as `InputFrame.styleable(...)` around
- * a `TextInput` with an internal `unstyled` variant. When we extend it via
- * `styled(TamaguiInput, {...})`, Tamagui compiles our config into atomic CSS
- * classes (`._height-40px`, `._bg-skyLighter`, …) but the runtime marks the
- * rendered <input> with `data-disable-theme="true"` and never attaches our
- * classes — the element stays visually bare (verified via DOM inspection).
- *
- * Bypassing Tamagui's Input wrapper and extending react-native's TextInput
- * directly avoids the whole variant tangle. `react-native` resolves to
- * `react-native-web` on web via our Vite alias, so the DOM output is still
- * `<input>` (react-native-web's own class-based styling), and our Tamagui
- * classes now attach correctly.
+ * The Container reads a state prop for its border colour rather than using
+ * `focus-within` (which Tamagui doesn't model natively) — the component
+ * tracks focus with `useState` and passes it in.
  */
 
 // ---------------------------------------------------------------------------
-// Base styled() — Figma constants + a11y affordances
+// Container — surface (bg / border / height / focus outline)
 // ---------------------------------------------------------------------------
 
-export const InputFrame = styled(TextInput, {
-  name: 'InputFrame',
-
-  // Without this, Tamagui treats react-native's TextInput as "external unknown
-  // component" and forwards only inline `style` — our compiled atomic classes
-  // (`._height-40px`, `._bg-skyLighter`, …) never get attached to the element.
-  // With `acceptsClassName: true` Tamagui knows the rendered DOM element does
-  // accept className and applies the classes. See:
-  // https://tamagui.dev/docs/core/styled#using-on-the-web
-  acceptsClassName: true,
-
-  // Fixed height per design — matches Button minHeight so buttons and inputs
-  // line up perfectly when placed side-by-side in a form row.
+export const InputContainer = styled(Stack, {
+  name: 'InputContainer',
+  tag: 'div',
+  flexDirection: 'row',
+  alignItems: 'center',
   height: 40,
-  paddingHorizontal: 12,
-
   borderRadius: 8, // = $sm
   borderWidth: 1,
   borderStyle: 'solid',
   borderColor: 'transparent',
+  backgroundColor: '$skyLighter',
+  overflow: 'hidden', // clips ripple / hover backgrounds inside adornments
 
-  fontFamily: '$body',
-  fontSize: 16,
-  lineHeight: 21,
-  fontWeight: '400',
+  variants: {
+    /**
+     * Per-state colour — driven by the component (see resolveContainer).
+     * Split like this so a single prop maps to bg + border in tandem and we
+     * don't need to spread multiple values at the call site.
+     */
+    state: {
+      default: {
+        backgroundColor: '$skyLighter',
+        borderColor: 'transparent',
+      },
+      focus: {
+        backgroundColor: '$skyLighter',
+        borderColor: '$primary',
+      },
+      error: {
+        backgroundColor: '$skyLighter',
+        borderColor: '$danger',
+      },
+      errorFocus: {
+        // Focused while in error: keep the error colour — signals to the user
+        // that the field still needs attention. Some libraries switch to
+        // primary on focus; we intentionally don't.
+        backgroundColor: '$skyLighter',
+        borderColor: '$danger',
+      },
+      disabled: {
+        backgroundColor: '$skyBase',
+        borderColor: 'transparent',
+      },
+    },
+  } as const,
 
-  // Caret colour on native platforms (Android + iOS selection tint).
-  // Web caret uses `caretColor` — see the inline style in Input.tsx.
-  cursorColor: '$primary',
-  selectionColor: '$primary',
-
-  // Keyboard-only focus outline for WCAG-strong focus visibility, on top of
-  // the primary border colour change we apply via `focusStyle` in Input.tsx.
-  focusVisibleStyle: {
-    outlineColor: '$primary',
-    outlineWidth: 2,
-    outlineStyle: 'solid',
-    outlineOffset: 1,
+  defaultVariants: {
+    state: 'default',
   },
-}, {
-  // Third argument — static config. `isInput: true` tells Tamagui to type this
-  // as a text-input component (text style props like fontFamily are valid);
-  // `accept` tells it to resolve theme tokens on the listed non-style props.
-  // Without `accept`, `placeholderTextColor="$inkLight"` reaches
-  // react-native-web as the literal string "$inkLight" instead of the resolved
-  // colour. Mirrors what Tamagui's own Input does internally.
-  isInput: true,
-  accept: {
-    placeholderTextColor: 'color',
-    selectionColor: 'color',
+})
+
+// ---------------------------------------------------------------------------
+// Field — the real <input>. Transparent, borderless, no own padding.
+// Padding lives on the Container (via slots or the left/right adornment
+// margins) so we can adjust it based on whether prefix/suffix are present.
+// ---------------------------------------------------------------------------
+
+export const InputField = styled(
+  TextInput,
+  {
+    name: 'InputField',
+    acceptsClassName: true, // needed so Tamagui attaches classes to the <input>
+    flex: 1,
+    height: '100%',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    minWidth: 0, // lets the flex child shrink below its intrinsic size
+
+    fontFamily: '$body',
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: '400',
+    color: '$inkDarker',
+
+    cursorColor: '$primary',
+    selectionColor: '$primary',
+  },
+  {
+    isInput: true,
+    accept: {
+      placeholderTextColor: 'color',
+      selectionColor: 'color',
+    } as const,
+  },
+)
+
+// ---------------------------------------------------------------------------
+// Slot — prefix or suffix wrapper. Neutral spacing; interactive contents
+// (Button, IconButton) keep their own affordances.
+// ---------------------------------------------------------------------------
+
+export const InputSlot = styled(Stack, {
+  name: 'InputSlot',
+  tag: 'span',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+  height: '100%',
+  paddingHorizontal: 8,
+
+  variants: {
+    side: {
+      start: { paddingLeft: 12, paddingRight: 8 },
+      end: { paddingLeft: 8, paddingRight: 12 },
+    },
+    inert: {
+      // When the slot's content isn't interactive (a plain icon), clicks pass
+      // through to the container so the user focuses the field naturally.
+      true: {
+        pointerEvents: 'none',
+      },
+    },
   } as const,
 })
 
@@ -87,17 +151,15 @@ export const InputFrame = styled(TextInput, {
 
 export const LabelText = styled(Text, {
   name: 'InputLabel',
-  // Regular size / Medium weight → Sarabun 16/21 @ 500 (Figma "regular/medium").
   fontFamily: '$body',
   fontSize: 16,
   lineHeight: 21,
   fontWeight: '500',
-  color: '$color', // $color = inkDarkest in light theme
+  color: '$color',
 })
 
 export const HelperText = styled(Text, {
   name: 'InputHelperText',
-  // Small size / Regular weight → Sarabun 14/20 @ 400 (Figma "small/regular").
   fontFamily: '$body',
   fontSize: 14,
   lineHeight: 20,
@@ -114,36 +176,35 @@ export const HelperText = styled(Text, {
 })
 
 // ---------------------------------------------------------------------------
-// Appearance table — background / border / text per state
+// Field appearance — colour + placeholder per state
 // ---------------------------------------------------------------------------
 
-const defaultAppearance = {
-  backgroundColor: '$skyLighter',
-  borderColor: 'transparent',
+const defaultField = {
   color: '$inkDarker',
   placeholderTextColor: '$inkLight',
 } as const
 
-const disabledAppearance = {
-  backgroundColor: '$skyBase',
-  borderColor: 'transparent',
+const disabledField = {
   color: '$skyDark',
   placeholderTextColor: '$skyDark',
 } as const
 
-const errorAppearance = {
-  backgroundColor: '$skyLighter',
-  borderColor: '$danger',
-  color: '$inkDarker',
-  placeholderTextColor: '$inkLight',
-} as const
+export function resolveFieldAppearance({ disabled }: { disabled: boolean }) {
+  return disabled ? disabledField : defaultField
+}
 
-export function resolveInputAppearance(input: {
+export function resolveContainerState({
+  disabled,
+  focused,
+  hasError,
+}: {
   disabled: boolean
+  focused: boolean
   hasError: boolean
-}) {
-  const { disabled, hasError } = input
-  if (disabled) return disabledAppearance
-  if (hasError) return errorAppearance
-  return defaultAppearance
+}): 'default' | 'focus' | 'error' | 'errorFocus' | 'disabled' {
+  if (disabled) return 'disabled'
+  if (hasError && focused) return 'errorFocus'
+  if (hasError) return 'error'
+  if (focused) return 'focus'
+  return 'default'
 }

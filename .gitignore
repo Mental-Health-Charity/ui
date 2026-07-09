@@ -12,3 +12,10 @@ yarn-error.log*
 .cache/
 coverage/
 *.tsbuildinfo
+
+# Tamagui — auto-generated compiled config + prebuilt components.
+.tamagui/
+
+# ESLint / lint-staged / husky cache
+.eslintcache
+.stylelintcache

@@ -6,7 +6,10 @@ import { styled, Stack } from 'tamagui'
  */
 
 export const Section = styled(Stack, { name: 'Section', tag: 'section' })
-export const Article = styled(Stack, { name: 'Article', tag: 'article' })
+// NOTE: The <article> landmark primitive is intentionally not exported here —
+// use the full <Article> compound component from `components/Article` instead
+// (renders `<article>` on web) or `<Section render="article">` if you need
+// a bare landmark.
 export const Header = styled(Stack, { name: 'Header', tag: 'header' })
 export const Footer = styled(Stack, { name: 'Footer', tag: 'footer' })
 export const Nav = styled(Stack, { name: 'Nav', tag: 'nav' })

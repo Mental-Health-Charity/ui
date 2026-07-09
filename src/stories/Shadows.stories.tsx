@@ -17,15 +17,7 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-function ShadowDemo({
-  name,
-  shadow,
-  spec,
-}: {
-  name: string
-  shadow: object
-  spec: string
-}) {
+function ShadowDemo({ name, shadow, spec }: { name: string; shadow: object; spec: string }) {
   return (
     <YStack gap={12} alignItems="center">
       <YStack

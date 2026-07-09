@@ -1,4 +1,4 @@
-import { palette } from "./palette";
+import { palette } from './palette'
 
 /**
  * Semantic theme tokens.
@@ -69,13 +69,13 @@ const lightTheme = {
   successText: palette.ink.darkest,
 
   // Misc
-  shadowColor: "rgba(9, 10, 10, 0.08)",
-  overlay: "rgba(9, 10, 10, 0.45)", // modal/dialog backdrop
-};
+  shadowColor: 'rgba(9, 10, 10, 0.08)',
+  overlay: 'rgba(9, 10, 10, 0.45)', // modal/dialog backdrop
+}
 
 // Shared theme shape — derived from the light theme keys but widens the
 // value type to `string` so the dark theme can hold different hex values.
-type ThemeShape = Record<keyof typeof lightTheme, string>;
+type ThemeShape = Record<keyof typeof lightTheme, string>
 
 /**
  * Dark theme — Peryskop palette has no official dark variant,
@@ -129,15 +129,15 @@ const darkTheme: ThemeShape = {
   successSoft: palette.primary.darkest,
   successText: palette.green.lightest,
 
-  shadowColor: "rgba(0, 0, 0, 0.4)",
-  overlay: "rgba(0, 0, 0, 0.6)",
-};
+  shadowColor: 'rgba(0, 0, 0, 0.4)',
+  overlay: 'rgba(0, 0, 0, 0.6)',
+}
 
 export const themes = {
   light: lightTheme,
   dark: darkTheme,
-} as const;
+} as const
 
-export type AppThemes = typeof themes;
-export type ThemeName = keyof AppThemes;
-export type ThemeTokens = keyof typeof lightTheme;
+export type AppThemes = typeof themes
+export type ThemeName = keyof AppThemes
+export type ThemeTokens = keyof typeof lightTheme

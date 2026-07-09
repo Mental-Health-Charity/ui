@@ -1,17 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Text } from 'tamagui'
-import {
-  Section,
-  Article,
-  Header,
-  Footer,
-  Nav,
-  Main,
-  Aside,
-  List,
-  OrderedList,
-  ListItem,
-} from './Layout'
+import { Section, Header, Footer, Nav, Main, Aside, List, OrderedList, ListItem } from './Layout'
 import { Typography } from '../Typography'
 
 const meta: Meta = {
@@ -29,13 +18,7 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-function Box({
-  label,
-  children,
-}: {
-  label: string
-  children?: React.ReactNode
-}) {
+function Box({ label, children }: { label: string; children?: React.ReactNode }) {
   return (
     <>
       <Text fontSize={11} fontWeight="600" color="$colorMuted">
@@ -49,20 +32,9 @@ function Box({
 export const PageStructure: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
-    <Main
-      padding="$lg"
-      gap="$lg"
-      borderWidth={1}
-      borderColor="$borderColor"
-      borderRadius="$md"
-    >
+    <Main padding="$lg" gap="$lg" borderWidth={1} borderColor="$borderColor" borderRadius="$md">
       <Box label="<main>" />
-      <Header
-        padding="$md"
-        backgroundColor="$primarySoft"
-        borderRadius="$sm"
-        gap="$sm"
-      >
+      <Header padding="$md" backgroundColor="$primarySoft" borderRadius="$sm" gap="$sm">
         <Box label="<header>" />
         <Nav padding="$sm" backgroundColor="$background" borderRadius="$sm">
           <Box label="<nav>" />
@@ -72,11 +44,11 @@ export const PageStructure: Story = {
 
       <Section padding="$md" borderWidth={1} borderColor="$borderColor" borderRadius="$sm">
         <Box label="<section>" />
-        <Article padding="$sm" gap="$sm">
+        <Section padding="$sm" gap="$sm" tag="article">
           <Box label="<article>" />
           <Typography variant="title3">Article title</Typography>
           <Typography variant="regularRegular">Article body content.</Typography>
-        </Article>
+        </Section>
       </Section>
 
       <Aside padding="$md" backgroundColor="$secondarySoft" borderRadius="$sm">

@@ -62,12 +62,7 @@ export const PaddingPreview: Story = {
               borderRadius="$sm"
               padding={space[name]}
             >
-              <YStack
-                width={40}
-                height={20}
-                backgroundColor="$primary"
-                borderRadius={2}
-              />
+              <YStack width={40} height={20} backgroundColor="$primary" borderRadius={2} />
             </YStack>
             <Text fontSize={11} color="$colorMuted">
               ${name}

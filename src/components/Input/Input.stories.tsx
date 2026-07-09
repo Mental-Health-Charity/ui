@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { YStack } from 'tamagui'
+import { YStack, Text } from 'tamagui'
 import { Input } from './Input'
+import { Button } from '../Button'
+import { Badge } from '../Badge'
 
 const meta: Meta<typeof Input> = {
   title: 'Components/Input',
@@ -21,7 +23,7 @@ const meta: Meta<typeof Input> = {
   },
   decorators: [
     (Story) => (
-      <YStack width={320}>
+      <YStack width={360}>
         <Story />
       </YStack>
     ),
@@ -35,65 +37,124 @@ export const Playground: Story = {}
 
 export const WithCaption: Story = {
   args: {
-    label: 'Email',
-    placeholder: 'you@example.com',
     caption: "We'll never share it.",
   },
 }
 
 export const WithErrorMessage: Story = {
   args: {
-    label: 'Email',
-    placeholder: 'you@example.com',
     caption: "We'll never share it.",
     error: 'Enter a valid email address.',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'When `error` is a string it replaces the caption visually and turns the helper red. The border also flips to red and `aria-invalid` is set.',
-      },
-    },
   },
 }
 
 export const WithErrorFlag: Story = {
+  args: { error: true },
+}
+
+export const Disabled: Story = {
+  args: { disabled: true },
+}
+
+// ---------------------------------------------------------------------------
+// Prefix / suffix — the meat of this component
+// ---------------------------------------------------------------------------
+
+export const PrefixIcon: Story = {
   args: {
-    label: 'Email',
-    placeholder: 'you@example.com',
-    error: true,
+    label: 'Search',
+    placeholder: 'Type to search…',
+    prefix: <Text color="$inkLight">🔍</Text>,
   },
   parameters: {
     docs: {
       description: {
         story:
-          '`error={true}` triggers the red border without a message — useful when the error text lives elsewhere (e.g. a form-level summary).',
+          'Inert content (plain text/icon) gets `pointer-events: none` so clicking it focuses the field.',
       },
     },
   },
 }
 
-export const Disabled: Story = {
+export const SuffixInteractive: Story = {
   args: {
-    label: 'Email',
-    placeholder: 'you@example.com',
-    disabled: true,
+    label: 'Password',
+    placeholder: '••••••••',
+    caption: 'At least 8 characters.',
+    suffix: <Button variant="mutedPrimary">Show</Button>,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive content (element with `onPress`/`onClick`) stays clickable and does not focus the field on click.',
+      },
+    },
   },
 }
 
-export const NoLabel: Story = {
+export const BothSides: Story = {
   args: {
-    label: undefined,
-    placeholder: 'Search…',
+    label: 'Command',
+    placeholder: 'Search commands…',
+    prefix: <Text color="$inkLight">⌘</Text>,
+    suffix: <Badge tone="muted">K</Badge>,
   },
 }
+
+export const CurrencyField: Story = {
+  args: {
+    label: 'Amount',
+    placeholder: '0.00',
+    prefix: <Text color="$inkLight">$</Text>,
+    suffix: <Text color="$inkLight">USD</Text>,
+    inputMode: 'decimal',
+  },
+}
+
+export const ClearButton: Story = {
+  render: (args) => (
+    <Input
+      {...args}
+      label="Filter"
+      defaultValue="active projects"
+      suffix={
+        <Button
+          variant="mutedPrimary"
+
+          onPress={() => {
+            const el = document.querySelector<HTMLInputElement>('input#clearable')
+            if (el) {
+              el.value = ''
+              el.focus()
+            }
+          }}
+          aria-label="Clear filter"
+        >
+          ×
+        </Button>
+      }
+      id="clearable"
+    />
+  ),
+}
+
+// ---------------------------------------------------------------------------
+// Kitchen sink
+// ---------------------------------------------------------------------------
 
 export const AllStates: Story = {
   parameters: { layout: 'fullscreen' },
+  decorators: [(S) => <S />],
   render: () => (
-    <YStack gap={20} padding={24} maxWidth={360}>
+    <YStack gap={20} padding={24} maxWidth={420}>
       <Input label="Default" placeholder="Type here…" />
+      <Input
+        label="With prefix + suffix"
+        placeholder="Search…"
+        prefix={<Text color="$inkLight">🔍</Text>}
+        suffix={<Badge tone="muted">⌘K</Badge>}
+      />
       <Input
         label="With caption"
         placeholder="Type here…"
@@ -107,15 +168,40 @@ export const AllStates: Story = {
       <Input
         label="Error (string)"
         placeholder="Invalid input"
-        caption="This caption is overridden."
         error="Please enter a valid value."
       />
-      <Input
-        label="Error (flag only)"
-        placeholder="Border only, no message"
-        error
-      />
+      <Input label="Error (flag only)" placeholder="Border only, no message" error />
       <Input label="Disabled" placeholder="Not editable" disabled />
+      <Input
+        label="Disabled with adornments"
+        placeholder="Not editable"
+        disabled
+        prefix={<Text color="$inkLight">$</Text>}
+        suffix={<Text color="$inkLight">USD</Text>}
+      />
+    </YStack>
+  ),
+}
+
+// Demonstrate focus behaviour visually — hovering the surrounding container
+// should focus the field, but clicking the button suffix should NOT.
+export const FocusRouting: Story = {
+  render: () => (
+    <YStack gap={12}>
+      <Input
+        label="Click anywhere in the surface"
+        placeholder="…except the button"
+        prefix={<Text color="$inkLight">🔍</Text>}
+        suffix={
+          <Button variant="mutedPrimary" onPress={() => alert('button')}>
+            Action
+          </Button>
+        }
+      />
+      <Text fontSize={12} color="$colorMuted">
+        Clicking the icon or the empty space focuses the field. Clicking the button fires the
+        button's `onPress` without stealing focus.
+      </Text>
     </YStack>
   ),
 }
