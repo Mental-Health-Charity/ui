@@ -15,6 +15,7 @@
 /** Corner radius (px). */
 export const radius = {
   none: 0,
+  xs: 4, // micro controls — checkbox, small badges
   sm: 8,
   md: 12,
   lg: 16,

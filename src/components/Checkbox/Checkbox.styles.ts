@@ -47,7 +47,7 @@ export const CheckboxBox = styled(Stack, {
   tag: 'span',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: 4,
+  borderRadius: '$xs',
   borderWidth: 1.5,
   borderStyle: 'solid',
   flexShrink: 0,
