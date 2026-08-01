@@ -39,7 +39,7 @@ export const RadioRing = styled(Stack, {
   tag: 'span',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: 9999,
+  borderRadius: '$full',
   borderWidth: 1.5,
   borderStyle: 'solid',
   flexShrink: 0,
@@ -103,7 +103,7 @@ export const RadioRing = styled(Stack, {
 // The inner dot — colour follows the ring's state (primary / danger / muted).
 export const RadioDot = styled(Stack, {
   name: 'RadioDot',
-  borderRadius: 9999,
+  borderRadius: '$full',
 
   variants: {
     size: {
