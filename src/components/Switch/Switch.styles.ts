@@ -72,7 +72,7 @@ export const SwitchTrack = styled(Stack, {
   name: 'SwitchTrack',
   tag: 'span',
   position: 'relative',
-  borderRadius: 9999,
+  borderRadius: '$full',
   flexShrink: 0,
 
   focusVisibleStyle: {
@@ -115,7 +115,7 @@ export const SwitchThumb = styled(Stack, {
   name: 'SwitchThumb',
   tag: 'span',
   position: 'absolute',
-  borderRadius: 9999,
+  borderRadius: '$full',
   backgroundColor: '$background', // white in light theme, ink in dark
   shadowColor: '$shadowColor',
   shadowOffset: { width: 0, height: 1 },
