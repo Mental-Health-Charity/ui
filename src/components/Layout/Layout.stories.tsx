@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Text } from 'tamagui'
-import { Section, Header, Footer, Nav, Main, Aside, List, OrderedList, ListItem } from './Layout'
+import { Section, Header, Footer, Nav, Main, Aside } from './Layout'
 import { Typography } from '../Typography'
 
 const meta: Meta = {
@@ -66,38 +66,8 @@ export const PageStructure: Story = {
   ),
 }
 
-export const Lists: Story = {
-  render: () => (
-    <Main padding="$lg" gap="$lg">
-      <Section gap="$sm">
-        <Typography variant="regularSemibold">Unordered list (&lt;ul&gt;)</Typography>
-        <List paddingLeft="$lg">
-          <ListItem>
-            <Typography variant="regularRegular">First item</Typography>
-          </ListItem>
-          <ListItem>
-            <Typography variant="regularRegular">Second item</Typography>
-          </ListItem>
-          <ListItem>
-            <Typography variant="regularRegular">Third item</Typography>
-          </ListItem>
-        </List>
-      </Section>
-
-      <Section gap="$sm">
-        <Typography variant="regularSemibold">Ordered list (&lt;ol&gt;)</Typography>
-        <OrderedList paddingLeft="$lg">
-          <ListItem>
-            <Typography variant="regularRegular">Step one</Typography>
-          </ListItem>
-          <ListItem>
-            <Typography variant="regularRegular">Step two</Typography>
-          </ListItem>
-          <ListItem>
-            <Typography variant="regularRegular">Step three</Typography>
-          </ListItem>
-        </OrderedList>
-      </Section>
-    </Main>
-  ),
-}
+// The old bare `<List>` / `<OrderedList>` / `<ListItem>` stories were
+// removed together with those Layout primitives. See the full `<List>`
+// compound component (components/List) for the modern equivalent, which
+// covers plain, bulleted, numbered, and divided variants with consistent
+// markers on web + native.
