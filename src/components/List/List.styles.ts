@@ -159,7 +159,10 @@ export const ListItemRow = styled(Stack, {
 
 // Wrapper that fixes the marker column width so text below wraps to a
 // consistent indent — regardless of whether the marker is a dot, a digit,
-// or an icon.
+// or an icon. Vertical alignment of the actual glyph lives on the glyph
+// itself (Bullet vs Number), not here — the two need different offsets:
+// bullets are visually centred on the text mid-line, numbers align their
+// baseline with the title's baseline via matching `lineHeight`.
 export const ListItemMarker = styled(Stack, {
   name: 'ListItemMarker',
   alignItems: 'center',
@@ -168,20 +171,9 @@ export const ListItemMarker = styled(Stack, {
 
   variants: {
     size: {
-      sm: {
-        minWidth: 16,
-        // Push the marker down slightly so it sits on the text's baseline
-        // rather than the ascender line — cleaner alignment for bullets.
-        paddingTop: 6,
-      },
-      md: {
-        minWidth: 20,
-        paddingTop: 8,
-      },
-      lg: {
-        minWidth: 24,
-        paddingTop: 10,
-      },
+      sm: { minWidth: 16 },
+      md: { minWidth: 20 },
+      lg: { minWidth: 24 },
     },
   } as const,
 
@@ -190,7 +182,10 @@ export const ListItemMarker = styled(Stack, {
 
 // Visual bullet — a small circle rendered with a Stack so it looks identical
 // on web and native (browser `list-style: disc` renders slightly differently
-// depending on the font).
+// depending on the font). `marginTop` centres the dot on the text's visual
+// mid-line at each size — the row uses `alignItems: 'flex-start'`, so
+// without an explicit offset the dot would sit at the ascender line and
+// look floated above the text.
 export const ListItemBullet = styled(Stack, {
   name: 'ListItemBullet',
   borderRadius: '$full',
@@ -198,9 +193,9 @@ export const ListItemBullet = styled(Stack, {
 
   variants: {
     size: {
-      sm: { width: 4, height: 4 },
-      md: { width: 5, height: 5 },
-      lg: { width: 6, height: 6 },
+      sm: { width: 4, height: 4, marginTop: 8 },
+      md: { width: 5, height: 5, marginTop: 9 },
+      lg: { width: 6, height: 6, marginTop: 11 },
     },
     tone: {
       default: { backgroundColor: '$inkDarker' },
@@ -216,21 +211,22 @@ export const ListItemBullet = styled(Stack, {
 })
 
 // Visual number — plain text digit, right-aligned in the marker column.
+// No vertical offset: `lineHeight` matches the title's, so both text boxes
+// start at the row's top edge and share a baseline naturally. The previous
+// (Marker paddingTop + Number marginTop) combo produced a net +2px shift
+// because the marker padding and the negative margin didn't cancel.
 export const ListItemNumber = styled(Text, {
   name: 'ListItemNumber',
   fontFamily: '$body',
   fontWeight: '500',
   color: '$inkLight',
   textAlign: 'right',
-  // Cancel the marker's `paddingTop`: numbers align to the text baseline
-  // via typography metrics, not visual centring.
-  marginTop: -6,
 
   variants: {
     size: {
       sm: { fontSize: 13, lineHeight: 20 },
       md: { fontSize: 14, lineHeight: 22 },
-      lg: { fontSize: 15, lineHeight: 24 },
+      lg: { fontSize: 15, lineHeight: 26 },
     },
   } as const,
 
