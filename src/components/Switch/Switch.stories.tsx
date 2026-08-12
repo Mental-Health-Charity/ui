@@ -10,7 +10,11 @@ const meta: Meta<typeof Switch> = {
     label: { control: 'text' },
     caption: { control: 'text' },
     error: { control: 'text' },
-    checked: { control: 'boolean' },
+    // NB: `checked` is deliberately NOT declared as a Storybook control.
+    // Setting it makes Switch a controlled component with no consumer to
+    // update it, so clicks in the Playground would appear broken. Stories
+    // that need a starting position use `defaultChecked` (uncontrolled) or
+    // provide their own useState wrapper (see `Controlled`).
     disabled: { control: 'boolean' },
     labelStart: { control: 'boolean' },
     size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
@@ -19,7 +23,6 @@ const meta: Meta<typeof Switch> = {
     label: 'Enable notifications',
     caption: undefined,
     error: undefined,
-    checked: false,
     disabled: false,
     labelStart: false,
     size: 'md',
