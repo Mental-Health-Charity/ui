@@ -8,7 +8,7 @@ The audience is any contributor (human or AI agent) about to touch the library.
 
 ## What this library is
 
-`@peryskop/ui` is a shared design-system library that ships components for:
+`@fundacja-peryskop/ui` is a shared design-system library that ships components for:
 
 - **Web** — React 19 + `react-native-web` running in the browser
 - **Mobile** — React Native on iOS and Android
@@ -43,6 +43,7 @@ One codebase per component, one styling API (Tamagui), one design token surface.
 | [TAMAGUI_USAGE.md](./TAMAGUI_USAGE.md)                 | Before writing a popover, menu, dialog, dropdown, sheet, tooltip, etc.    |
 | [COMPONENT_DEVELOPMENT.md](./COMPONENT_DEVELOPMENT.md) | Whenever you add or substantially change a component                      |
 | [CODING_STANDARDS.md](./CODING_STANDARDS.md)           | Continuously — style, comments, TS, a11y, PR checklist                    |
+| [PUBLISHING.md](./PUBLISHING.md)                       | Cutting a release, or installing the package in a consuming app           |
 
 ---
 

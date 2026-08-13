@@ -1,0 +1,35 @@
+{
+  // Publish-only TS project — inherits from the editor tsconfig but narrows
+  // the include list to the library's actual source, and strips out
+  // Storybook config / stories / stray files that should never ship in the
+  // published tarball.
+  //
+  // Used by `tamagui-build` via `--ts-project tsconfig.build.json` in the
+  // `build` script. Do NOT use this for editor tooling — VS Code picks up
+  // `tsconfig.json`, which still needs `.storybook/**/*` in its `include`
+  // so Storybook config files get type-checked in the IDE.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // The build must actually emit — the base tsconfig has `noEmit: true`
+    // because it's editor-facing. tamagui-build overrides this at runtime
+    // for its own emit passes, but declaring it here makes the intent
+    // explicit if someone runs `tsc -p tsconfig.build.json` directly.
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist/types",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "storybook-static",
+    ".storybook",
+    "src/**/*.stories.tsx",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/__tests__/**"
+  ]
+}

@@ -1,0 +1,65 @@
+name: Publish to GitHub Packages
+
+# Fires on two triggers:
+#   1. A GitHub Release is published — the release's tag (e.g. v0.2.0) is what
+#      humans use to cut a version. The workflow reads the current
+#      package.json version (must be bumped in a prior commit).
+#   2. Manual `workflow_dispatch` — for re-runs when a publish failed
+#      mid-flight (e.g. transient network error) without cutting a new tag.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  # Prevent two publish runs from racing each other — npm publish is not
+  # idempotent (the second one hits "version already exists").
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # id-token is required if we ever move to npm provenance / OIDC.
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # Wires up ~/.npmrc so `npm publish` targets GitHub Packages for
+          # our scope. NODE_AUTH_TOKEN is picked up from env at publish time.
+          registry-url: https://npm.pkg.github.com
+          scope: '@fundacja-peryskop'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify package version matches release tag
+        # Guards against a common footgun: cutting a release with tag v0.2.0
+        # while package.json still says 0.1.0. Skips on manual dispatch.
+        if: github.event_name == 'release'
+        run: |
+          PKG_VERSION="v$(node -p "require('./package.json').version")"
+          TAG="${{ github.event.release.tag_name }}"
+          if [ "$PKG_VERSION" != "$TAG" ]; then
+            echo "::error::package.json version ($PKG_VERSION) does not match release tag ($TAG)."
+            echo "Bump the version in a commit on main, then re-cut the release."
+            exit 1
+          fi
+
+      - name: Publish
+        # `prepublishOnly` in package.json runs typecheck + lint + build here.
+        run: npm publish
+        env:
+          # The workflow's built-in token is scoped to this repo with the
+          # `packages: write` permission requested above — no PAT needed.
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
