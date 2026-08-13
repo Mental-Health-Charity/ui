@@ -1,0 +1,21 @@
+#
+# Consumer .npmrc template — copy to your app's root as `.npmrc`.
+#
+# Two lines: (1) route the @fundacja-peryskop scope to GitHub Packages,
+# (2) attach a GitHub Personal Access Token for authentication. The token
+# is read from the environment so it never ends up committed.
+#
+# To set up:
+#   1. Create a PAT at https://github.com/settings/tokens (classic) with
+#      the `read:packages` scope. Save it as an env var, e.g. in ~/.zshrc:
+#        export GITHUB_TOKEN=ghp_your_token_here
+#   2. Copy this file to your app's `.npmrc` (do NOT commit that file if
+#      it contains a literal token — the ${GITHUB_TOKEN} form below is
+#      safe to commit because npm expands it at install time).
+#   3. Run `npm install @fundacja-peryskop/ui`.
+#
+# CI: set GITHUB_TOKEN as a repository secret and export it before install.
+#
+
+@fundacja-peryskop:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
