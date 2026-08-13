@@ -1,89 +1,91 @@
-# @peryskop/ui
+# @fundacja-peryskop/ui
 
-Shared UI library for **Peryskop** — one component set used by:
+Shared design-system library for **Peryskop**. One component set, three runtimes:
 
-- the React Native mobile app
-- the React web app (CSR / Vite / whatever bundler)
+- React 19 on the **web** (via `react-native-web`)
+- React Native on **iOS**
+- React Native on **Android**
 
-Built on top of [Tamagui](https://tamagui.dev) so the same component renders to:
+Built on top of [Tamagui](https://tamagui.dev) so every component renders to native primitives on iOS/Android and to semantic HTML (`<article>`, `<h1>`, `<label>`, `<fieldset>`, `<a href>`, …) on the web — SEO- and accessibility-friendly without maintaining two component trees.
 
-- **native primitives** (`Text`, `View`, `Pressable`) on iOS / Android
-- **semantic HTML** (`<h1>`, `<p>`, `<a href>`, `<nav>`, `<section>`, …) on web
+Published to **GitHub Packages** under the `@fundacja-peryskop` scope.
 
-…which is what makes the web build SEO- and accessibility-friendly without
-maintaining two component trees.
+---
+
+## Table of contents
+
+- [Install](#install)
+- [Setup](#setup)
+- [Components](#components)
+- [Design tokens](#design-tokens)
+- [Documentation](#documentation)
+- [Storybook](#storybook)
+- [Scripts](#scripts)
+- [Contributing](#contributing)
 
 ---
 
 ## Install
 
-This package is not published yet — link it locally via your monorepo /
-workspaces tooling, or `npm pack` + install the tarball.
+This package lives on **GitHub Packages**, not npmjs.com. Consumers need a GitHub Personal Access Token with `read:packages` scope.
 
-Peer deps your app must provide:
+### One-time setup per developer
+
+1. Create a PAT at https://github.com/settings/tokens (classic) with `read:packages` scope only.
+2. Export it as an env var:
+
+   ```bash
+   # ~/.zshrc, ~/.bashrc, or Windows: setx GITHUB_TOKEN "ghp_..."
+   export GITHUB_TOKEN=ghp_your_token_here
+   ```
+
+### Per-project setup
+
+Add an `.npmrc` at the root of your consuming project:
 
 ```
-react        >= 18.2
-tamagui      ^1.112
-react-native *           # only for the mobile app
+@fundacja-peryskop:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
+
+The `${GITHUB_TOKEN}` form is safe to commit — npm expands it at install time; the literal token never touches the repo.
+
+### Install
+
+```bash
+npm install @fundacja-peryskop/ui
+```
+
+### Peer dependencies
+
+Your app must provide these — they are not bundled with the library:
+
+```
+react                 >= 18.2
+react-dom             (web only)
+react-native          (mobile only)
+tamagui               >= 1.140
+```
+
+Full CI setup and consumer troubleshooting: [docs/PUBLISHING.md](./docs/PUBLISHING.md#installing-the-package).
 
 ---
 
-## Project structure
+## Setup
 
-```
-src/
-├── config/                # app-integration: Tamagui config + Provider
-│   ├── tamagui.config.ts
-│   ├── Provider.tsx
-│   └── index.ts
-│
-├── tokens/                # design tokens (no React, no stories)
-│   ├── palette.ts         # raw color palette + flat tokens
-│   ├── themes.ts          # semantic light/dark themes
-│   ├── typography.ts      # Sarabun font + size/weight scales
-│   ├── shadows.ts         # cross-platform shadow presets
-│   ├── spacing.ts         # space + radius scales
-│   └── index.ts
-│
-├── components/            # full UI components — folder per component
-│   ├── Button/
-│   │   ├── Button.tsx
-│   │   ├── Button.stories.tsx
-│   │   └── index.ts
-│   ├── Link/
-│   ├── Typography/
-│   └── Layout/            # semantic HTML5 landmarks
-│
-├── stories/               # foundation stories (no component owner)
-│   ├── Colors.stories.tsx
-│   ├── Spacing.stories.tsx
-│   ├── Radius.stories.tsx
-│   └── Shadows.stories.tsx
-│
-└── index.ts               # public barrel
-```
-
-Convention: any new component → its own folder under `components/`,
-shipped with its `.stories.tsx` and a barrel `index.ts`.
-
-## Setup in a consuming app
-
-Wrap your app once with `PeryskopProvider`:
+### 1. Wrap your app with the provider
 
 ```tsx
-import { PeryskopProvider } from '@peryskop/ui'
+import { PeryskopProvider } from '@fundacja-peryskop/ui'
 
 export function App({ children }: { children: React.ReactNode }) {
   return <PeryskopProvider defaultTheme="light">{children}</PeryskopProvider>
 }
 ```
 
-### Web build (Vite / Webpack)
+### 2. Web bundler (Vite)
 
-Add the Tamagui compiler so styles get extracted to atomic CSS and the
-bundle stays small:
+Add the Tamagui plugin so styles get extracted to atomic CSS and the bundle stays small:
 
 ```ts
 // vite.config.ts
@@ -95,16 +97,16 @@ export default defineConfig({
   plugins: [
     react(),
     tamaguiPlugin({
-      config: './node_modules/@peryskop/ui/src/tamagui.config.ts',
-      components: ['tamagui', '@peryskop/ui'],
+      config: './node_modules/@fundacja-peryskop/ui/src/config/tamagui.config.ts',
+      components: ['tamagui', '@fundacja-peryskop/ui'],
     }),
   ],
 })
 ```
 
-### Native build (Expo / RN CLI)
+### 3. Native bundler (Expo / React Native CLI)
 
-Add the Babel plugin in `babel.config.js`:
+Add the Tamagui Babel plugin in `babel.config.js`:
 
 ```js
 module.exports = {
@@ -113,47 +115,17 @@ module.exports = {
     [
       '@tamagui/babel-plugin',
       {
-        components: ['tamagui', '@peryskop/ui'],
-        config: './node_modules/@peryskop/ui/src/tamagui.config.ts',
+        components: ['tamagui', '@fundacja-peryskop/ui'],
+        config: './node_modules/@fundacja-peryskop/ui/src/config/tamagui.config.ts',
       },
     ],
   ],
 }
 ```
 
----
+### 4. Load the Sarabun font
 
-## Components
-
-### `Typography`
-
-Mapuje się 1:1 na Figma Font Variables. Konwencja Figmy: `<size>/<weight>`,
-w TS bez slasha → `largeBold`, `regularSemibold`, itp.
-
-Web: variant dobiera semantyczny tag (`title1` → `<h1>`, `regularRegular` → `<p>`, `tinyRegular` → `<span>`).
-
-```tsx
-<Typography variant="title1">Tytuł strony</Typography>
-<Typography variant="regularRegular">Lorem ipsum…</Typography>
-<Typography variant="smallSemibold" muted>Pomocniczy tekst</Typography>
-
-// override semantyki niezależnie od wyglądu:
-<Typography variant="title1" tag="span">Looks big, not a heading</Typography>
-```
-
-Dostępne warianty (Sarabun, weight: Regular=400 / Medium=500 / Bold=700):
-
-- `title1` 48/56, `title2` 32/36, `title3` 24/32 (always bold)
-- `largeBold`, `largeSemibold`, `largeRegular` (18/23)
-- `regularBold`, `regularSemibold`, `regularRegular` (16/21) — default
-- `smallBold`, `smallSemibold`, `smallRegular` (14/20)
-- `tinyBold`, `tinySemibold`, `tinyRegular` (12/16)
-
-**Uwaga**: `semibold` = weight `500` (Medium), nie 600. Tak jest w Figmie — patrz `src/tokens/typography.ts`.
-
-#### Loading Sarabun
-
-**Web** (np. w `index.html`):
+**Web** — add to `<head>`:
 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -177,30 +149,52 @@ const [loaded] = useFonts({
 if (!loaded) return null
 ```
 
-### `Button`
+---
 
-Renders a real `<button>` on web — focusable, Enter/Space activation,
-announced as button by screen readers. On native it's a press-handling Stack.
+## Components
 
-```tsx
-<Button variant="primary" onPress={() => doThing()}>Zapisz</Button>
-<Button variant="outline" size="sm">Anuluj</Button>
-<Button variant="danger" disabled>Usuń</Button>
-```
-
-### `Link`
-
-Renders `<a href>` on web (crawlable by Googlebot). On native it's a `Text`
-that you wire to `Linking.openURL` or your navigation library.
+Every component is fully typed, accessible, cross-platform, and covered by Storybook stories. Import from the package root:
 
 ```tsx
-<Link href="/o-nas">O nas</Link>
-<Link href="https://example.com" external>Strona zewnętrzna</Link>
+import { Button, Input, Checkbox, Card /* … */ } from '@fundacja-peryskop/ui'
 ```
 
-### Layout primitives
+### Form controls
 
-Semantic HTML5 landmarks on web; plain Views on native.
+| Component   | Purpose                                                                                 |
+| ----------- | --------------------------------------------------------------------------------------- |
+| `Button`    | Primary CTA. `variant` = primary / secondary / danger / mutedPrimary. Outlined mode.    |
+| `Input`     | Single-line text input with label, caption, error, prefix/suffix slots.                 |
+| `Textarea`  | Multi-line text input. Auto-resizes to content, capped by `maxRows`.                    |
+| `Select`    | Dropdown built on Tamagui's Select primitive. Grouped options, mobile Sheet adaptation. |
+| `Checkbox`  | Standalone or grouped (`CheckboxGroup`). Indeterminate state, error, sizes.             |
+| `Radio`     | Almost always used inside `RadioGroup`. Native `<fieldset>` + `<legend>` a11y.          |
+| `Switch`    | Binary toggle. Animated thumb, sizes sm/md/lg, `labelStart` for iOS-style lists.        |
+| `FormGroup` | Vertical wrapper for form fields. Applies consistent spacing + `role="group"`.          |
+
+### Data display
+
+| Component | Purpose                                                                                |
+| --------- | -------------------------------------------------------------------------------------- |
+| `Card`    | Elevated content container with header / body / footer slots.                          |
+| `Chip`    | Compact pill for tags, filters, selectable options. Removable variant with `onDelete`. |
+| `Badge`   | Coloured dot + label. Semantic tones: primary / secondary / danger / success / muted.  |
+| `Avatar`  | Circular user image with fallback initials. `Avatar.Group` for stacked avatars.        |
+| `Person`  | Composite of Avatar + name + role. Common list-row identity primitive.                 |
+
+### Content
+
+| Component    | Purpose                                                                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Article`    | Semantic `<article>` compound: `Article.Banner`, `Article.Content`. Handles `<figure>` margin reset and responsive banner aspect ratio.           |
+| `Typography` | Sarabun-based text with 14 variants (title1..3, largeBold..regular, regular*, small*, tiny*). Auto-picks semantic tag on web (`title1` → `<h1>`). |
+| `Link`       | Renders `<a href>` on web (crawlable), `Text` on native. `external` prop opens in new tab.                                                        |
+
+### Layout
+
+Semantic HTML5 landmarks on web; plain Views on native:
+
+`Section`, `Header`, `Footer`, `Nav`, `Main`, `Aside`.
 
 ```tsx
 <Main>
@@ -209,91 +203,133 @@ Semantic HTML5 landmarks on web; plain Views on native.
   </Header>
   <Section>
     <Article>
-      <Typography variant="h1">Tytuł artykułu</Typography>…
+      <Typography variant="title1">Article title</Typography>
     </Article>
   </Section>
   <Footer>…</Footer>
 </Main>
 ```
 
-Includes: `Section`, `Article`, `Header`, `Footer`, `Nav`, `Main`, `Aside`,
-`List`, `OrderedList`, `ListItem`.
+### Foundations
 
-### Spacing & Radius
+Not components, but shipped from the same package:
 
-Skala spacingu (4-base) i corner radius dostępne jako Tamagui tokens.
-Referuj przez `$` notację — Tamagui sam wybiera właściwą tabelę z kontekstu propa.
+- `PeryskopProvider` — Tamagui provider wired with our themes and fonts
+- `tamaguiConfig` — the underlying `createTamagui()` config, importable for advanced use
+- `shadows` — cross-platform shadow presets (`shadows.small`, `shadows.medium`, `shadows.large`)
+
+---
+
+## Design tokens
+
+Reference tokens via Tamagui's `$` notation. Tamagui picks the right scale from the prop's context (`padding` → space, `borderRadius` → radius, `color` → colour).
 
 ```tsx
 <YStack
   padding="$lg" // 16px
   gap="$sm" // 8px
   borderRadius="$md" // 12px
+  backgroundColor="$primarySoft"
 />
 ```
 
-**Spacing**: `none` (0), `xs` (4), `sm` (8), `md` (12), `lg` (16), `xl` (24), `xxl` (32), `xxxl` (48).
-**Radius**: `none` (0), `sm` (8), `md` (12), `lg` (16) — z Figmy + `full` (9999) dla pill/avatarów.
+### Spacing (4-based scale)
+
+`$none` (0), `$xs` (4), `$sm` (8), `$md` (12), `$lg` (16), `$xl` (24), `$xxl` (32), `$xxxl` (48)
+
+### Radius
+
+`$none` (0), `$xs` (4), `$sm` (8), `$md` (12), `$lg` (16), `$full` (9999 — pills, avatars)
+
+### Colours
+
+Semantic tokens (auto-swap on theme change):
+
+`$background`, `$backgroundHover`, `$color`, `$colorMuted`, `$borderColor`, `$primary`, `$primaryHover`, `$primarySoft`, `$primaryText`, `$secondary`, `$danger`, `$dangerSoft`, `$success`, `$overlay`, and more.
+
+Raw palette also available (`$primaryBase`, `$skyLighter`, `$inkDarker`, …) — but prefer semantic tokens so dark-mode support lands for free.
 
 ### Shadows
 
-Cross-platform shadow presety z Figmy. Aplikuj jako prop spread:
-
 ```tsx
-import { shadows } from '@peryskop/ui'
+import { shadows } from '@fundacja-peryskop/ui'
 
 <Card {...shadows.small} />   // 0 0 8 0
 <Card {...shadows.medium} />  // 0 1 8 2
 <Card {...shadows.large} />   // 0 1 24 8
 ```
 
-Web: prawdziwy `boxShadow` (ze spreadem). Native: aproksymacja przez
-`shadowRadius` + `elevation` (RN nie ma `spread`).
+Full token reference: [docs/DESIGN_TOKENS.md](./docs/DESIGN_TOKENS.md).
 
 ---
 
-## SEO checklist for the web app
+## Documentation
 
-The library gives you semantic DOM out of the box. The app still needs to:
+Contributor documentation lives under [`docs/`](./docs/README.md). Read these before adding or modifying components:
 
-1. Manage `<head>` (title, meta description, OG tags) — use
-   `@unhead/react` or `react-helmet-async`.
-2. Render exactly **one** `<h1>` per page and keep heading order sane.
-3. Use real `<a href>` for every navigable link (`Link` component does this).
-4. Add a `sitemap.xml` and `robots.txt`.
-5. Without SSR, Googlebot will still index the SPA, but ranking and social
-   previews are weaker. If SEO becomes critical, swap the web app to Vike /
-   Astro / Next.js — the components don't change.
+| Document                                                         | Scope                                                                 |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [docs/README.md](./docs/README.md)                               | Entry point — six non-negotiables + navigation                        |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)                   | Folder-per-component, layer separation, resolver pattern              |
+| [docs/DESIGN_TOKENS.md](./docs/DESIGN_TOKENS.md)                 | Never use raw values; process for adding new tokens                   |
+| [docs/CROSS_PLATFORM.md](./docs/CROSS_PLATFORM.md)               | Web + iOS + Android — `tag=""`, `Platform.OS`, SSR, `Adapt` for touch |
+| [docs/TAMAGUI_USAGE.md](./docs/TAMAGUI_USAGE.md)                 | Wrap primitives, don't reimplement; `styled()` conventions            |
+| [docs/COMPONENT_DEVELOPMENT.md](./docs/COMPONENT_DEVELOPMENT.md) | 11-step workflow from branch to PR + PR checklist                     |
+| [docs/CODING_STANDARDS.md](./docs/CODING_STANDARDS.md)           | Comments, naming, TypeScript, hooks, a11y, git conventions            |
+| [docs/PUBLISHING.md](./docs/PUBLISHING.md)                       | Cutting a release + installing the package in a consuming app         |
 
 ---
 
 ## Storybook
 
-Lokalny katalog komponentów (na webie — Tamagui przez `react-native-web` renderuje to samo co RN robi natywnie):
+Local component catalogue with an interactive controls panel and accessibility audit. Runs on the web via Vite (`react-native-web` renders the same output that Tamagui produces natively).
 
+```bash
+npm run storybook          # dev server on http://localhost:6006
+npm run build-storybook    # static build to storybook-static/
 ```
-pnpm storybook         # dev server na http://localhost:6006
-pnpm build-storybook   # statyczny build do storybook-static/
-```
 
-Stack: **Storybook 9** + **Vite builder** + `@tamagui/vite-plugin`. Addony:
+Stack: **Storybook 9** + **Vite builder** + `@tamagui/vite-plugin`. Addons:
 
-- `addon-a11y` — axe-core audit każdego story (panel "Accessibility")
-- `addon-themes` — przełącznik light/dark w toolbarze (mapuje na `PeryskopProvider defaultTheme`)
-- `addon-docs` — auto-generowane MDX z propsami komponentów
+- `addon-a11y` — axe-core audit on every story (Accessibility panel)
+- `addon-themes` — light/dark toggle in the toolbar
+- `addon-docs` — auto-generated MDX pages from prop types
 
-Stories są **kolokowane** z komponentami (`Button.tsx` + `Button.stories.tsx`).
-Pliki `*.stories.tsx` i `.storybook/` są wyłączone z paczki npm przez `.npmignore`.
+Stories are colocated with components (`Button.tsx` + `Button.stories.tsx`). Story files are excluded from the published tarball.
 
-Sarabun ładowany jest w `.storybook/preview.css` z Google Fonts.
+---
 
 ## Scripts
 
+```bash
+npm run build             # build dist (cjs + esm) + types via @tamagui/build
+npm run watch             # rebuild on change
+npm run typecheck         # tsc --noEmit (covers src + .storybook)
+npm run lint              # ESLint with --max-warnings=0
+npm run lint:fix          # ESLint with --fix
+npm run format            # Prettier over the repo
+npm run format:check      # Prettier --check for CI
+npm run storybook         # Storybook dev server
+npm run build-storybook   # static Storybook build
+npm run clean             # remove dist/ + types/ + storybook-static/
 ```
-pnpm build             # build dist (cjs + esm + d.ts) via @tamagui/build
-pnpm watch             # rebuild on change
-pnpm typecheck         # tsc --noEmit (covers src + .storybook)
-pnpm storybook         # storybook dev server
-pnpm build-storybook   # static storybook build
-pnpm clean             # remove dist + storybook-static
-```
+
+`prepublishOnly` runs typecheck + lint + clean + build automatically — a broken commit cannot be published.
+
+---
+
+## Contributing
+
+This is an internal library for the Peryskop foundation, but the same discipline applies to every contributor (human or AI agent):
+
+1. Read [docs/README.md](./docs/README.md) before touching any file.
+2. One component per branch. Name branches `feat/<component>`, `fix/<scope>`, `refactor/<scope>`, `docs/<scope>`.
+3. Follow the [11-step workflow](./docs/COMPONENT_DEVELOPMENT.md#the-workflow) — no shortcuts.
+4. Every PR must pass typecheck, lint (zero warnings), and land with `Playground` + `AllStates` stories at minimum.
+5. Commit messages in English, imperative, no `Co-Authored-By` trailer.
+
+---
+
+## License
+
+Internal / private. All rights reserved to Fundacja Peryskop.
