@@ -1,6 +1,6 @@
 {
   "name": "@fundacja-peryskop/ui",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Shared UI library for Peryskop (React Native + React web) built on Tamagui",
   "sideEffects": [
     "*.css"
